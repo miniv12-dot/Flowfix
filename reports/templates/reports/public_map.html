@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Status Map | FlowFix</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root { --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        body { background-color: #f4f7f9; font-family: 'Segoe UI', system-ui, sans-serif; padding-top: 100px; transition: var(--transition-smooth); }
+        .glass-nav { background: rgba(10, 42, 94, 0.8) !important; backdrop-filter: blur(12px); -apple-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        #live-map { height: 65vh; border-radius: 20px; min-height: 440px; z-index: 1;}
+        .map-card { background: #ffffff; border: none; border-radius: 24px; box-shadow: 0 10px 30px rgba(10, 42, 94, 0.04); }
+        [data-bs-theme="dark"] body { background-color: #0b0f19; color: #f1f5f9; }
+        [data-bs-theme="dark"] .map-card { background: #1e293b !important; border: 1px solid rgba(255,255,255,0.05); }
+        [data-bs-theme="dark"] footer { background-color: #020617 !important; border-top: 1px solid #1e293b !important; }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top glass-nav">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="{% url 'home' %}">
+            <i class="bi bi-droplet-fill text-info me-2"></i> FlowFix
+        </a>
+        <div class="d-flex align-items-center gap-3 order-lg-last">
+            <button class="btn btn-link text-white text-decoration-none p-0 lh-1" id="themeToggle" style="font-size: 1.25rem;"><i class="bi bi-moon-stars-fill" id="themeIcon"></i></button>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-2 mt-2 mt-lg-0 me-lg-3">
+                <li class="nav-item"><a class="nav-link text-white-50" href="{% url 'home' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link active fw-bold text-white" href="{% url 'public_map' %}">Live Radar</a></li>
+                <li class="nav-item"><a class="nav-link text-white-50" href="{% url 'track_report' %}">Track Ticket</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4 flex-grow-1">
+    <div class="row g-4 align-items-center mb-4">
+        <div class="col-12 col-lg-8">
+            <h2 class="fw-bolder" style="color: #0A2A5E;">Live Infrastructure Monitor</h2>
+            <p class="text-muted mb-0">See active water issues reported across Pinetown, Kloof, Hillcrest, and the greater Upper Highway area.</p>
+        </div>
+        <div class="col-12 col-lg-4 text-lg-end">
+            <button type="button" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#mapGuideModal"><i class="bi bi-info-circle-fill"></i> Map Guide</button>
+        </div>
+    </div>
+    <div class="row"><div class="col-12"><div class="card map-card p-2"><div id="live-map"></div></div></div></div>
+</div>
+
+<div class="modal fade" id="mapGuideModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg text-dark">
+            <div class="modal-header text-white" style="background: #0A2A5E;">
+                <h5 class="modal-title fw-bold">Live Radar Protocol</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <h6>How to read the map:</h6>
+                <p class="small text-muted">This map shows all water issues reported by residents. Red pins mean a leak has been logged and is currently waiting for a repair crew to be assigned.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center py-4 mt-auto border-top" style="background-color: #ffffff; transition: var(--transition-smooth);">
+    <div class="container"><p class="mb-0 text-muted small">&copy; 2026 FlowFix Municipality Systems. Designed and Engineered by <a href="https://www.linkedin.com/in/minenhle-bhengu-7128a32a6" target="_blank" class="fw-bold text-decoration-none text-primary ms-1">Minenhle Bhengu <i class="bi bi-linkedin small"></i></a>.</p></div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var map = L.map('live-map').setView([-29.7925, 30.8355], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+    var reports = JSON.parse('{{ reports_json|safe }}');
+    var faultIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+    
+    reports.forEach(function(r) {
+        var marker = L.marker([r.lat, r.lng], {icon: faultIcon}).addTo(map);
+        var badge = r.severity.includes('High') ? 'bg-danger' : (r.severity.includes('Medium') ? 'bg-warning text-dark' : 'bg-info text-dark');
+        marker.bindPopup(`<div style="min-width: 180px;"><h6 class="fw-bold border-bottom pb-1 mb-2">${r.title}</h6><span class="badge ${badge} mb-2">${r.severity}</span><div class="d-grid"><a href="/track/?code=FIX-${r.id}" class="btn btn-outline-primary btn-sm py-0" style="font-size:0.75rem;">Lifecycle Tracking</a></div></div>`);
+    });
+
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlElement = document.documentElement;
+    setTheme(localStorage.getItem('flowfixTheme') || 'light');
+    themeToggleBtn.addEventListener('click', () => {
+        const nextTheme = htmlElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        setTheme(nextTheme);
+        localStorage.setItem('flowfixTheme', nextTheme);
+    });
+    function setTheme(t) {
+        htmlElement.setAttribute('data-bs-theme', t);
+        if (t === 'dark') { themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill'); themeIcon.classList.add('text-warning'); }
+        else { themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill'); themeIcon.classList.remove('text-warning'); }
+    }
+</script>
+</body>
+</html>
