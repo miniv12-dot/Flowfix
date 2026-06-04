@@ -8,6 +8,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         self.stdout.write(self.style.WARNING('Initiating Civic Data Ingestion...'))
+        WaterFaultReport.objects.all().delete()
+        
+        self.stdout.write(self.style.WARNING('Old data wiped. Generating fresh reports...'))
 
         # 1. Realistic Issue Dictionaries (Mapped to your exact SEVERITY_CHOICES)
         issues = [
