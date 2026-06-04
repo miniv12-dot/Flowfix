@@ -72,7 +72,8 @@
         <div class="text-center text-muted my-3 small"><i class="bi bi-shield-check"></i> Messages are live and localized to {{ suburb }}</div>
         </div>
 
-<div class="chat-input-area mb-3">
+<!-- Input Area -->
+    <div class="chat-input-area mb-3">
         {% if user.is_authenticated %}
             <form id="chatForm" class="d-flex gap-2 align-items-center">
                 {% csrf_token %}
@@ -80,21 +81,24 @@
                 <button type="submit" class="btn-send"><i class="bi bi-send-fill"></i></button>
             </form>
         {% else %}
+            <!-- What Recruiters/Public Visitors See (No Login Prompt) -->
             <div class="text-center p-3 rounded" style="background: rgba(26, 86, 219, 0.05); border: 1px dashed #cbd5e1;">
                 <i class="bi bi-eye-fill text-muted me-1"></i>
-                <span class="text-muted small fw-bold">You are viewing this neighborhood chat as a guest.</span>
-                <br>
-                <a href="{% url 'admin:index' %}" class="btn btn-sm btn-primary mt-2 rounded-pill px-4 shadow-sm">Log in to join the conversation</a>
+                <span class="text-muted small fw-bold">Live demo mode. You are viewing this neighborhood chat as a guest.</span>
             </div>
         {% endif %}
     </div>
+</div>
 
 <script>
     const suburb = "{{ suburb }}";
     const chatBox = document.getElementById('chatBox');
     const chatForm = document.getElementById('chatForm');
     const messageInput = document.getElementById('messageInput');
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // BUG FIX: Safely check for the CSRF token without crashing if it doesn't exist
+    const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
+    const csrfToken = csrfElement ? csrfElement.value : '';
     
     let lastMessageCount = 0;
 
@@ -104,7 +108,6 @@
             const response = await fetch(`/community/api/fetch/${suburb}/`);
             const data = await response.json();
             
-            // Only update the DOM if there are new messages
             if (data.messages.length !== lastMessageCount) {
                 chatBox.innerHTML = '<div class="text-center text-muted my-3 small"><i class="bi bi-shield-check"></i> Messages are live and localized to ' + suburb + '</div>';
                 
@@ -118,7 +121,6 @@
                     chatBox.appendChild(bubble);
                 });
                 
-                // Auto-scroll to bottom
                 chatBox.scrollTop = chatBox.scrollHeight;
                 lastMessageCount = data.messages.length;
             }
@@ -128,31 +130,33 @@
     }
 
     // 2. Send Message Function
-    chatForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const content = messageInput.value.trim();
-        if (!content) return;
-        
-        messageInput.value = ''; // Clear input instantly for snappy feel
-        
-        try {
-            await fetch(`/community/api/send/${suburb}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({ content: content })
-            });
-            // Fetch immediately after sending
-            fetchMessages(); 
-        } catch (error) {
-            console.error("Error sending message:", error);
-        }
-    });
+    // BUG FIX: Only try to attach the send button if the user is logged in
+    if (chatForm) {
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const content = messageInput.value.trim();
+            if (!content) return;
+            
+            messageInput.value = ''; 
+            
+            try {
+                await fetch(`/community/api/send/${suburb}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ content: content })
+                });
+                fetchMessages(); 
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
+        });
+    }
 
-    // 3. The Polling Engine (Fetches every 3 seconds)
-    fetchMessages(); // Fetch immediately on load
+    // 3. The Polling Engine
+    fetchMessages(); 
     setInterval(fetchMessages, 3000); 
 
 </script>
