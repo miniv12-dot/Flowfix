@@ -3,287 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlowFix | Municipal Water Infrastructure</title>
+    <title>FlowFix | Intelligent Water Infrastructure</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <style>
-        :root {
-            --primary-blue: #0A2A5E;
-            --accent-cyan: #00d2ff;
-            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #f4f7f9; 
-            color: #1e293b; 
-            transition: var(--transition-smooth);
-            overflow-x: hidden;
-        }
+        :root { --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f6f9fc; color: #1e293b; transition: var(--transition-smooth); padding-top: 80px; }
         
-        /* --- ZETTAJOULE STYLE NAVBAR --- */
-        .hybrid-nav { 
-            position: absolute; top: 0; left: 0; width: 100%; 
-            z-index: 100; padding: 2rem 0; background: transparent; 
-            transition: var(--transition-smooth); 
-        }
-        .nav-link-centered { 
-            font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.9) !important; 
-            padding: 0.5rem 1.5rem !important; transition: opacity 0.3s ease; 
-        }
-        .nav-link-centered:hover { opacity: 0.6; }
-        
-        .zj-action-btn { 
-            background: white; color: #0f172a; padding: 0.7rem 1.8rem; 
-            border-radius: 4px; text-decoration: none; font-size: 0.95rem; font-weight: 500; 
-            transition: transform 0.3s ease, box-shadow 0.3s ease; 
-        }
-        .zj-action-btn:hover { transform: scale(1.02); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        /* Unified Nav */
+        .hybrid-nav { background: rgba(10, 42, 94, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: var(--transition-smooth); }
+        .nav-link-centered { color: rgba(255,255,255,0.9) !important; font-weight: 500; transition: opacity 0.3s ease; }
+        .nav-link-centered:hover { opacity: 0.7; }
 
-        /* Civic Hero Section */
+        /* Hero Section */
         .hero-section {
-            background: linear-gradient(135deg, #031433 0%, #0A2A5E 60%, #1A56DB 100%);
-            position: relative;
-            padding: 200px 0 140px 0;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            box-shadow: 0 20px 40px rgba(10, 42, 94, 0.15);
+            background: linear-gradient(135deg, #0A2A5E 0%, #1A56DB 100%);
+            padding: 100px 0;
+            color: white;
+            border-radius: 0 0 40px 40px;
+            margin-top: -80px; /* Pull up under nav */
+            padding-top: 160px;
+            box-shadow: 0 20px 40px rgba(26, 86, 219, 0.15);
         }
-
-        /* Subtle topographical map background texture */
-        .hero-section::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3; pointer-events: none;
-        }
-
-        /* Hero Typography */
-        .hero-title {
-            font-size: clamp(3rem, 5vw, 4.5rem);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -1px;
-            color: #ffffff;
-            margin-bottom: 1.5rem;
-        }
-        .hero-title span {
-            background: linear-gradient(to right, #00d2ff, #48e5c2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Floating UI Mockup */
-        .ui-mockup {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-            transform: perspective(1000px) rotateY(-15deg) rotateX(5deg);
-            transition: var(--transition-smooth);
-            animation: float 5s ease-in-out infinite;
-        }
-        .ui-mockup:hover { transform: perspective(1000px) rotateY(-5deg) rotateX(2deg) scale(1.02); }
-
-        /* Mockup internal elements */
-        .mockup-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1.5rem; }
-        .pulse-dot {
-            width: 12px; height: 12px; background-color: #ff4757; border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
-            animation: pulse 2s infinite;
-        }
-
-        /* Action Buttons */
-        .btn-cyan {
-            background: var(--accent-cyan); color: #0A2A5E; font-weight: 700; border: none;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3); transition: var(--transition-smooth);
-        }
-        .btn-cyan:hover { background: #00bced; color: #0A2A5E; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 210, 255, 0.5); }
-        .btn-outline-glass {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white; font-weight: 600; backdrop-filter: blur(5px); transition: var(--transition-smooth);
-        }
-        .btn-outline-glass:hover { background: rgba(255, 255, 255, 0.2); color: white; transform: translateY(-3px); }
+        
+        .hero-badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 50px; padding: 6px 16px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 20px; }
 
         /* Feature Cards */
-        .feature-card {
-            background: #ffffff; border: none; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(10, 42, 94, 0.05); transition: var(--transition-smooth);
-            padding: 2.5rem 2rem; text-align: center; height: 100%;
-        }
-        .feature-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(10, 42, 94, 0.1); }
-        .icon-circle {
-            width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; margin: 0 auto 1.5rem auto;
-        }
+        .feature-card { background: white; border: none; border-radius: 20px; padding: 40px 30px; height: 100%; box-shadow: 0 10px 30px rgba(10, 42, 94, 0.05); transition: var(--transition-smooth); cursor: pointer; text-decoration: none; color: inherit; display: block; }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(10, 42, 94, 0.1); }
+        .feature-icon-box { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 20px; }
+        
+        .icon-blue { background: rgba(26, 86, 219, 0.1); color: #1A56DB; }
+        .icon-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .icon-green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
 
-        /* Animations */
-        @keyframes float { 0%, 100% { transform: perspective(1000px) rotateY(-15deg) rotateX(5deg) translateY(0); } 50% { transform: perspective(1000px) rotateY(-15deg) rotateX(5deg) translateY(-15px); } }
-        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); } }
+        /* Tech Stack Banner */
+        .tech-banner { border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; background: white; padding: 30px 0; margin-top: 60px; }
+        .tech-icon { font-size: 1.5rem; color: #64748b; margin: 0 20px; transition: color 0.3s ease; }
+        .tech-icon:hover { color: #1A56DB; }
 
-        /* --- DARK MODE --- */
+        /* Dark Mode */
         [data-bs-theme="dark"] body { background-color: #0b0f19; color: #f1f5f9; }
-        [data-bs-theme="dark"] .hero-section { background: linear-gradient(135deg, #020617 0%, #0f172a 100%); }
-        [data-bs-theme="dark"] .feature-card { background: #1e293b; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        [data-bs-theme="dark"] .text-dark { color: #f1f5f9 !important; }
-        [data-bs-theme="dark"] .text-muted { color: #94a3b8 !important; }
-        [data-bs-theme="dark"] footer { background-color: #020617 !important; border-top: 1px solid #1e293b !important; }
-        [data-bs-theme="dark"] .zj-action-btn { background: #1e293b; color: white; border: 1px solid rgba(255,255,255,0.1); }
-        [data-bs-theme="dark"] .hybrid-nav.bg-dark-scrolled { background: #0f172a !important; }
-
-        /* Mobile Nav Fix */
-        @media (max-width: 991px) {
-            .hybrid-nav { padding: 1rem 0; background: rgba(10, 42, 94, 0.95); }
-        }
+        [data-bs-theme="dark"] .feature-card { background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); color: #f1f5f9; }
+        [data-bs-theme="dark"] .tech-banner { background: #0f172a; border-color: #1e293b; }
+        [data-bs-theme="dark"] footer { background: #020617; border-color: #1e293b; }
+        
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark hybrid-nav">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top hybrid-nav">
     <div class="container">
         <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="{% url 'home' %}">
             <i class="bi bi-droplet-fill text-info me-2"></i> FlowFix
         </a>
-        
         <div class="d-flex align-items-center gap-4 order-lg-last">
-            <button class="btn btn-link text-white text-decoration-none p-0 lh-1" id="themeToggle" style="font-size: 1.25rem;">
-                <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
-            </button>
-            <a href="{% url 'dashboard' %}" class="zj-action-btn d-none d-sm-inline-block">Admin Login</a>
-            <button class="navbar-toggler border-0 p-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <button class="btn btn-link text-white text-decoration-none p-0 lh-1" id="themeToggle" style="font-size: 1.25rem;"><i class="bi bi-moon-stars-fill" id="themeIcon"></i></button>
+            <button class="navbar-toggler border-0 p-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
         </div>
-
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-            <ul class="navbar-nav gap-2 mt-3 mt-lg-0 text-center">
-                <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'home' %}" style="opacity: 1; font-weight: 600;">Home</a></li>
+            <ul class="navbar-nav gap-3 mt-3 mt-lg-0 text-center">
+                <li class="nav-item"><a class="nav-link nav-link-centered active" href="{% url 'home' %}">Home</a></li>
                 <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'public_map' %}">Live Radar</a></li>
-                <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'track_report' %}">Track Ticket</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'report_fault' %}">Report Issue</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'community_hub' %}">Community Hub</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<header class="hero-section text-white d-flex align-items-center">
+<section class="hero-section text-center">
     <div class="container">
-        <div class="row align-items-center g-5">
-            
-            <div class="col-12 col-lg-6 text-center text-lg-start position-relative" style="z-index: 2;">
-                <span class="badge bg-white bg-opacity-10 text-white rounded-pill px-3 py-2 fw-bold font-monospace mb-4 border border-white border-opacity-25">
-                    <i class="bi bi-building me-1"></i> Portfolio Project
-                </span>
-                <h1 class="hero-title">
-                    Report leaks.<br>
-                    <span>Track the repair.</span>
-                </h1>
-                <p class="lead mb-5 opacity-75 fw-light" style="max-width: 580px; font-size: 1.15rem;">
-                    FlowFix is the official bridge between citizens and municipal repair teams. Drop a GPS pin on burst pipes, track the dispatch crew in real-time, and help conserve our city's water.
-                </p>
-                <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3">
-                    <a href="{% url 'report_fault' %}" class="btn btn-cyan btn-lg rounded-pill px-5 py-3 fs-6">Report a Fault</a>
-                    <a href="{% url 'public_map' %}" class="btn btn-outline-glass btn-lg rounded-pill px-5 py-3 fs-6">View Regional Map</a>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="hero-badge"><i class="bi bi-rocket-takeoff-fill text-warning me-2"></i> Live Portfolio Deployment</div>
+                <h1 class="display-4 fw-bold mb-4">Intelligent Municipal Water Tracking</h1>
+                <p class="lead text-white-50 mb-5 px-md-5">A high-performance geospatial platform designed to bridge the gap between citizens and municipal repair teams. Report leaks, track response times, and stay connected.</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'report_fault' %}" class="btn btn-light btn-lg rounded-pill px-4 fw-bold shadow-sm text-primary">Report a Leak</a>
+                    <a href="{% url 'public_map' %}" class="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold shadow-sm"><i class="bi bi-map-fill me-2"></i> Open Radar</a>
                 </div>
             </div>
-            
-            <div class="col-12 col-lg-6 d-none d-lg-block">
-                <div class="ui-mockup">
-                    <div class="mockup-header d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="pulse-dot"></div>
-                            <span class="font-monospace small text-white fw-bold">LIVE DISPATCH: FIX-1042</span>
-                        </div>
-                        <span class="badge bg-warning text-dark rounded-pill px-3">Crew En Route</span>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h5 class="fw-bold mb-1">Major Pipe Burst</h5>
-                        <p class="text-white-50 small mb-2"><i class="bi bi-geo-alt-fill text-danger me-1"></i> 123 Josiah Gumede Rd, Pinetown</p>
-                    </div>
-
-                    <div class="bg-white bg-opacity-10 rounded-3 p-3 mb-4 border border-white border-opacity-10">
-                        <div class="d-flex justify-content-between text-white-50 small mb-2 fw-bold">
-                            <span>Reported</span>
-                            <span class="text-white">Dispatched</span>
-                            <span>Resolved</span>
-                        </div>
-                        <div class="progress" style="height: 8px; background-color: rgba(255,255,255,0.1);">
-                            <div class="progress-bar" role="progressbar" style="width: 50%; background-color: #00d2ff;"></div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="bi bi-truck text-white"></i>
-                        </div>
-                        <div>
-                            <p class="mb-0 fw-bold small text-white">Maintenance Team Alpha</p>
-                            <p class="mb-0 small text-white-50" style="font-size: 0.75rem;">Assigned 15 minutes ago</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
-</header>
+</section>
 
-<div class="container" style="margin-top: -60px; margin-bottom: 80px; position: relative; z-index: 5;">
+<section class="container my-5 py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Platform Capabilities</h2>
+        <p class="text-muted">Built with Django, PostgreSQL, and Leaflet.js</p>
+    </div>
+    
     <div class="row g-4">
+        <div class="col-md-4">
+            <a href="{% url 'report_fault' %}" class="feature-card">
+                <div class="feature-icon-box icon-red"><i class="bi bi-geo-alt-fill"></i></div>
+                <h4 class="fw-bold mb-3">Geospatial Reporting</h4>
+                <p class="text-muted mb-0">Use predictive location tracking or device GPS to pinpoint municipal water faults with high-precision accuracy.</p>
+            </a>
+        </div>
         
-        <div class="col-12 col-md-4">
-            <div class="feature-card">
-                <div class="icon-circle" style="background: rgba(26, 86, 219, 0.1); color: #1A56DB;">
-                    <i class="bi bi-geo-alt-fill"></i>
-                </div>
-                <h5 class="fw-bold mb-3 text-dark">Exact GPS Location</h5>
-                <p class="text-muted small mb-0">Don't know the street name? No problem. Use your phone's built-in GPS to drop a pin exactly where the water fault is located for the dispatch team.</p>
-            </div>
+        <div class="col-md-4">
+            <a href="{% url 'public_map' %}" class="feature-card">
+                <div class="feature-icon-box icon-blue"><i class="bi bi-activity"></i></div>
+                <h4 class="fw-bold mb-3">Live Radar Dashboard</h4>
+                <p class="text-muted mb-0">Monitor active repair queues and dispatch statuses in real-time across the municipal grid using interactive mapping.</p>
+            </a>
         </div>
-
-        <div class="col-12 col-md-4">
-            <div class="feature-card border border-primary border-opacity-25">
-                <div class="icon-circle" style="background: rgba(0, 210, 255, 0.15); color: #00a8cc;">
-                    <i class="bi bi-ticket-detailed-fill"></i>
-                </div>
-                <h5 class="fw-bold mb-3 text-dark">Track the Repair</h5>
-                <p class="text-muted small mb-4">You shouldn't have to wonder if the municipality received your complaint. Get a tracking code and watch the status change in real-time.</p>
-                <a href="{% url 'track_report' %}" class="btn btn-sm btn-outline-primary rounded-pill px-4 fw-bold w-100">Track a Ticket</a>
-            </div>
+        
+        <div class="col-md-4">
+            <a href="{% url 'community_hub' %}" class="feature-card">
+                <div class="feature-icon-box icon-green"><i class="bi bi-chat-quote-fill"></i></div>
+                <h4 class="fw-bold mb-3">Community Hub</h4>
+                <p class="text-muted mb-0">An automated, async-polling noticeboard allowing residents to communicate about localized outages and repairs.</p>
+            </a>
         </div>
+    </div>
+</section>
 
-        <div class="col-12 col-md-4">
-            <div class="feature-card">
-                <div class="icon-circle" style="background: rgba(25, 135, 84, 0.1); color: #198754;">
-                    <i class="bi bi-bar-chart-fill"></i>
-                </div>
-                <h5 class="fw-bold mb-3 text-dark">Data for Planners</h5>
-                <p class="text-muted small mb-0">Citizen reports are automatically fed into an internal municipal dashboard, allowing engineers to visualize fault hotspots and prioritize resources.</p>
-            </div>
+<div class="tech-banner text-center">
+    <div class="container">
+        <p class="text-muted small fw-bold text-uppercase tracking-widest mb-3">Powered By</p>
+        <div class="d-flex justify-content-center flex-wrap gap-4">
+            <span class="tech-icon"><i class="bi bi-code-slash"></i> Python / Django</span>
+            <span class="tech-icon"><i class="bi bi-database-fill"></i> PostgreSQL</span>
+            <span class="tech-icon"><i class="bi bi-bootstrap-fill"></i> Bootstrap 5</span>
+            <span class="tech-icon"><i class="bi bi-globe-americas"></i> Leaflet GPS</span>
+            <span class="tech-icon"><i class="bi bi-cloud-arrow-up-fill"></i> Render CI/CD</span>
         </div>
-
     </div>
 </div>
 
-<footer class="text-center py-5 mt-auto border-top" style="background-color: #ffffff; transition: background-color 0.3s ease;">
+<footer class="text-center py-4 bg-white">
     <div class="container">
-        <p class="mb-0 text-muted small">
-            &copy; 2026 FlowFix Municipality Systems. Designed and Engineered by 
-            <a href="https://www.linkedin.com/in/minenhle-bhengu-7128a32a6" target="_blank" class="fw-bold text-decoration-none text-primary ms-1">
-                Minenhle Bhengu <i class="bi bi-linkedin small"></i>
-            </a>.
-        </p>
+        <p class="mb-0 text-muted small">&copy; 2026 FlowFix Systems. Designed and Engineered by <a href="https://www.linkedin.com/in/minenhle-bhengu-7128a32a6" target="_blank" class="fw-bold text-decoration-none text-primary ms-1">Minenhle Bhengu <i class="bi bi-linkedin small"></i></a>.</p>
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Smart Theme Sync Logic
     const themeToggleBtn = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
     
+    function setTheme(t) {
+        htmlElement.setAttribute('data-bs-theme', t);
+        if (t === 'dark') { 
+            themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill'); 
+            themeIcon.classList.add('text-warning'); 
+        } else { 
+            themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill'); 
+            themeIcon.classList.remove('text-warning'); 
+        }
+    }
+
     setTheme(localStorage.getItem('flowfixTheme') || 'light');
     
     themeToggleBtn.addEventListener('click', () => {
@@ -291,17 +165,7 @@
         setTheme(nextTheme);
         localStorage.setItem('flowfixTheme', nextTheme);
     });
-    
-    function setTheme(theme) {
-        htmlElement.setAttribute('data-bs-theme', theme);
-        if (theme === 'dark') {
-            themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill');
-            themeIcon.classList.add('text-warning');
-        } else {
-            themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill');
-            themeIcon.classList.remove('text-warning');
-        }
-    }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

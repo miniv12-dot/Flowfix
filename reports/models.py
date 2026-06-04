@@ -53,3 +53,17 @@ class WorkOrder(models.Model):
 
     def __str__(self):
         return f"Order for {self.report.title} - {self.get_status_display()}"
+    
+class CommunityMessage(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    suburb = models.CharField(max_length=100, db_index=True)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"[{self.suburb}] {self.sender.username}: {self.content[:20]}"
+
+

@@ -7,4 +7,7 @@ urlpatterns = [
     path('map/', views.public_map, name='public_map'),
     path('dashboard/', views.municipality_dashboard, name='dashboard'),
     path('track/', views.track_report, name='track_report'),
+    path('community/', views.community_hub, name='community_hub'),
+    path('community/api/fetch/<str:suburb>/', views.fetch_messages, name='fetch_messages'),
+    path('community/api/send/<str:suburb>/', views.send_message, name='send_message'),
 ]

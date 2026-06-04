@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ suburb }} Hub | FlowFix</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root { --transition-smooth: all 0.3s ease; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: #f6f9fc; color: #1e293b; padding-top: 80px; height: 100vh; display: flex; flex-direction: column; }
+        
+        .hybrid-nav { background: rgba(10, 42, 94, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .nav-link-centered { color: rgba(255,255,255,0.9) !important; }
+        
+        /* Chat Interface Styling */
+        .chat-container { flex-grow: 1; overflow-y: auto; padding: 20px; background: #ffffff; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.05); }
+        .message-bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; margin-bottom: 15px; position: relative; font-size: 0.95rem; line-height: 1.4; }
+        
+        /* Other people's messages */
+        .msg-other { background-color: #f1f5f9; color: #334155; border-bottom-left-radius: 4px; float: left; clear: both; }
+        .msg-other .sender { font-weight: 700; font-size: 0.75rem; color: #1A56DB; margin-bottom: 4px; display: block; }
+        
+        /* Your messages */
+        .msg-me { background-color: #1A56DB; color: #ffffff; border-bottom-right-radius: 4px; float: right; clear: both; }
+        
+        .msg-time { font-size: 0.7rem; opacity: 0.7; display: block; text-align: right; margin-top: 5px; }
+
+        .chat-input-area { background: #ffffff; padding: 15px 20px; border-top: 1px solid #e2e8f0; }
+        .form-control { border-radius: 20px; padding: 10px 20px; border-color: #cbd5e1; }
+        .form-control:focus { box-shadow: none; border-color: #1A56DB; }
+        .btn-send { border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background-color: #1A56DB; color: white; border: none; transition: var(--transition-smooth); }
+        .btn-send:hover { transform: scale(1.05); background-color: #1e40af; }
+
+        /* Dark Mode Tweaks */
+        [data-bs-theme="dark"] body { background-color: #0f172a; color: #f1f5f9; }
+        [data-bs-theme="dark"] .chat-container { background: #1e293b; border: 1px solid rgba(255,255,255,0.05); }
+        [data-bs-theme="dark"] .chat-input-area { background: #1e293b; border-color: #334155; }
+        [data-bs-theme="dark"] .msg-other { background-color: #334155; color: #f8fafc; }
+        [data-bs-theme="dark"] .msg-other .sender { color: #60a5fa; }
+        [data-bs-theme="dark"] .form-control { background-color: #0f172a; border-color: #334155; color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top hybrid-nav">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="{% url 'home' %}">
+            <i class="bi bi-droplet-fill text-info me-2"></i> FlowFix
+        </a>
+        <div class="collapse navbar-collapse justify-content-center">
+            <ul class="navbar-nav gap-2 text-center">
+                <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'public_map' %}">Live Radar</a></li>
+                <li class="nav-item"><a class="nav-link nav-link-centered" href="{% url 'report_fault' %}">Report Issue</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container d-flex flex-column flex-grow-1 pt-4 pb-0" style="max-width: 800px;">
+    
+    <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-geo-alt-fill text-danger fs-3 me-2"></i>
+        <div>
+            <h4 class="mb-0 fw-bold">{{ suburb }} Community Hub</h4>
+            <small class="text-muted">Live neighborhood updates and discussion</small>
+        </div>
+    </div>
+
+    <div class="chat-container d-flex flex-column" id="chatBox">
+        <div class="text-center text-muted my-3 small"><i class="bi bi-shield-check"></i> Messages are live and localized to {{ suburb }}</div>
+        </div>
+
+<div class="chat-input-area mb-3">
+        {% if user.is_authenticated %}
+            <form id="chatForm" class="d-flex gap-2 align-items-center">
+                {% csrf_token %}
+                <input type="text" id="messageInput" class="form-control" placeholder="Type a message to your neighborhood..." autocomplete="off" required>
+                <button type="submit" class="btn-send"><i class="bi bi-send-fill"></i></button>
+            </form>
+        {% else %}
+            <div class="text-center p-3 rounded" style="background: rgba(26, 86, 219, 0.05); border: 1px dashed #cbd5e1;">
+                <i class="bi bi-eye-fill text-muted me-1"></i>
+                <span class="text-muted small fw-bold">You are viewing this neighborhood chat as a guest.</span>
+                <br>
+                <a href="{% url 'admin:index' %}" class="btn btn-sm btn-primary mt-2 rounded-pill px-4 shadow-sm">Log in to join the conversation</a>
+            </div>
+        {% endif %}
+    </div>
+
+<script>
+    const suburb = "{{ suburb }}";
+    const chatBox = document.getElementById('chatBox');
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    let lastMessageCount = 0;
+
+    // 1. Fetch Messages Function
+    async function fetchMessages() {
+        try {
+            const response = await fetch(`/community/api/fetch/${suburb}/`);
+            const data = await response.json();
+            
+            // Only update the DOM if there are new messages
+            if (data.messages.length !== lastMessageCount) {
+                chatBox.innerHTML = '<div class="text-center text-muted my-3 small"><i class="bi bi-shield-check"></i> Messages are live and localized to ' + suburb + '</div>';
+                
+                data.messages.forEach(msg => {
+                    const bubble = document.createElement('div');
+                    bubble.className = `message-bubble ${msg.is_me ? 'msg-me' : 'msg-other'}`;
+                    
+                    const senderHtml = msg.is_me ? '' : `<span class="sender">${msg.sender}</span>`;
+                    bubble.innerHTML = `${senderHtml}${msg.content}<span class="msg-time">${msg.timestamp}</span>`;
+                    
+                    chatBox.appendChild(bubble);
+                });
+                
+                // Auto-scroll to bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+                lastMessageCount = data.messages.length;
+            }
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+        }
+    }
+
+    // 2. Send Message Function
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const content = messageInput.value.trim();
+        if (!content) return;
+        
+        messageInput.value = ''; // Clear input instantly for snappy feel
+        
+        try {
+            await fetch(`/community/api/send/${suburb}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ content: content })
+            });
+            // Fetch immediately after sending
+            fetchMessages(); 
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
+    });
+
+    // 3. The Polling Engine (Fetches every 3 seconds)
+    fetchMessages(); // Fetch immediately on load
+    setInterval(fetchMessages, 3000); 
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

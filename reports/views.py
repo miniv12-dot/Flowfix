@@ -5,6 +5,46 @@ from .forms import ReportFaultForm
 from .models import WaterFaultReport # <-- Add this to your model imports!
 from django.db.models import Count, Q
 from .models import WorkOrder
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import CommunityMessage
+
+
+def community_hub(request):
+    # Safely check if the user is logged in before checking their suburb
+    if request.user.is_authenticated:
+        try:
+            user_suburb = request.user.residentprofile.suburb or 'Pinetown'
+        except:
+            user_suburb = 'Pinetown'
+    else:
+        user_suburb = 'Pinetown' # Recruiters will default to Pinetown to see the demo data
+        
+    return render(request, 'reports/community_hub.html', {'suburb': user_suburb})
+
+
+def fetch_messages(request, suburb):
+    messages = CommunityMessage.objects.filter(suburb=suburb).order_by('timestamp')
+    data = []
+    for msg in messages:
+        data.append({
+            'sender': msg.sender.username if msg.sender else 'Unknown',
+            'content': msg.content,
+            'timestamp': msg.timestamp.strftime('%I:%M %p'),
+            'is_me': msg.sender == request.user if request.user.is_authenticated else False
+        })
+    return JsonResponse({'messages': data})
+
+@login_required
+def send_message(request, suburb):
+    # This API receives new messages from the chat box
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        content = data.get('content')
+        if content:
+            CommunityMessage.objects.create(sender=request.user, suburb=suburb, content=content)
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
 
 def report_fault(request):
     if request.method == 'POST':
@@ -133,3 +173,4 @@ def home(request):
     The landing page for the FlowFix application.
     """
     return render(request, 'reports/home.html')
+
