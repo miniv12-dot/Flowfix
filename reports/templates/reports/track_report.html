@@ -77,6 +77,18 @@
 
             {% if report %}
             <div class="card track-card p-4">
+                
+                {% if auto_loaded %}
+                    <div class="alert alert-info py-2 d-flex align-items-center mb-4 border-0 shadow-sm" style="background-color: rgba(26, 86, 219, 0.1); color: #1A56DB;">
+                        <i class="bi bi-stars fs-4 me-3"></i> 
+                        <div>
+                            <strong class="d-block">Welcome back!</strong> 
+                            <small>We automatically loaded your most recent report.</small>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <h6 class="text-muted fw-bold mb-1">Ticket #FIX-{{ report.id }}</h6>
                 <h5 class="fw-bold mb-3 border-bottom border-secondary border-opacity-25 pb-2">{{ report.title }}</h5>
                 
                 <div class="track-wrapper">

@@ -52,6 +52,7 @@ def report_fault(request):
         if form.is_valid():
             # Save the form to the database
             report = form.save()
+            request.session['recent_ticket_id'] = report.id
             
             # Format the ID into a cool tracking code
             tracking_code = f"FIX-{report.id}"
@@ -136,36 +137,26 @@ def municipality_dashboard(request):
 
     return render(request, 'reports/dashboard.html', context)
 
-def track_report(request):
-    """
-    Allows citizens to search for their report using the FIX-ID and see its status.
-    """
-    # 1. Get what the user typed in the search box (e.g., "FIX-12")
-    query = request.GET.get('code', '').strip().upper()
-    report = None
-    work_order = None
-    error_message = None
+from .models import WaterFaultReport # Make sure this is imported at the top
 
-    if query:
-        try:
-            # 2. Extract just the numbers from whatever they typed
-            report_id = int(''.join(filter(str.isdigit, query)))
-            
-            # 3. Look it up in the database
-            report = WaterFaultReport.objects.get(id=report_id)
-            
-            # 4. Check if the municipality has created a work order for it yet
-            if hasattr(report, 'work_order'):
-                work_order = report.work_order
-                
-        except (ValueError, WaterFaultReport.DoesNotExist):
-            error_message = "We couldn't find a report with that tracking code. Please check and try again."
+def track_report(request):
+    ticket = None
+    search_query = request.GET.get('code') # Assuming your search form uses name="code"
+
+    if search_query:
+        # 1. The user manually searched for a ticket (e.g., FIX-15)
+        # Clean the input just in case they typed "FIX-15" instead of just "15"
+        clean_id = search_query.replace('FIX-', '').strip()
+        ticket = WaterFaultReport.objects.filter(id=clean_id).first()
+    else:
+        # 2. NO manual search. Let's check their session to see if they just made one!
+        recent_id = request.session.get('recent_ticket_id')
+        if recent_id:
+            ticket = WaterFaultReport.objects.filter(id=recent_id).first()
 
     return render(request, 'reports/track_report.html', {
-        'report': report,
-        'work_order': work_order,
-        'query': query,
-        'error_message': error_message
+        'ticket': ticket,
+        'auto_loaded': not search_query and ticket is not None # Let the template know we did this automatically
     })
 
 def home(request):
