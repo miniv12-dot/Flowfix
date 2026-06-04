@@ -140,23 +140,32 @@ def municipality_dashboard(request):
 from .models import WaterFaultReport # Make sure this is imported at the top
 
 def track_report(request):
-    ticket = None
-    search_query = request.GET.get('code') # Assuming your search form uses name="code"
+    report_obj = None
+    work_order_obj = None
+    search_query = request.GET.get('code')
 
+    # 1. Figure out which ticket to look for (from search bar or session)
     if search_query:
-        # 1. The user manually searched for a ticket (e.g., FIX-15)
-        # Clean the input just in case they typed "FIX-15" instead of just "15"
         clean_id = search_query.replace('FIX-', '').strip()
-        ticket = WaterFaultReport.objects.filter(id=clean_id).first()
+        report_obj = WaterFaultReport.objects.filter(id=clean_id).first()
     else:
-        # 2. NO manual search. Let's check their session to see if they just made one!
         recent_id = request.session.get('recent_ticket_id')
         if recent_id:
-            ticket = WaterFaultReport.objects.filter(id=recent_id).first()
+            report_obj = WaterFaultReport.objects.filter(id=recent_id).first()
 
+    # 2. If we found a report, grab its active Work Order status
+    if report_obj:
+        try:
+            work_order_obj = report_obj.work_order
+        except:
+            work_order_obj = None
+
+    # 3. Send it to the template using the exact names the HTML expects!
     return render(request, 'reports/track_report.html', {
-        'ticket': ticket,
-        'auto_loaded': not search_query and ticket is not None # Let the template know we did this automatically
+        'report': report_obj,           # Changed from 'ticket' to 'report'
+        'work_order': work_order_obj,   # Passes the dispatch status
+        'auto_loaded': not search_query and report_obj is not None,
+        'query': search_query or ''     # Keeps the search bar populated
     })
 
 def home(request):
