@@ -51,7 +51,20 @@
     </div>
     <div class="row"><div class="col-12"><div class="card map-card p-2"><div id="live-map"></div></div></div></div>
 </div>
-
+<!-- Ticket Tracking Search Bar -->
+<div class="container mb-3">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-2 d-flex gap-2">
+                    <input type="number" id="ticketSearchInput" class="form-control border-0 bg-light" placeholder="Enter Ticket ID (e.g., 15)" aria-label="Ticket ID">
+                    <button onclick="trackTicket()" class="btn btn-primary px-4 fw-bold rounded"><i class="bi bi-search"></i> Track</button>
+                </div>
+            </div>
+            <div id="searchFeedback" class="text-danger small mt-2 text-center" style="display: none;">Ticket not found on the active map.</div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="mapGuideModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg text-dark">
@@ -79,11 +92,50 @@
     var reports = JSON.parse('{{ reports_json|safe }}');
     var faultIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
     
+    // 1. Create a dictionary to hold all markers
+    const allMarkers = {};
+    
     reports.forEach(function(r) {
         var marker = L.marker([r.lat, r.lng], {icon: faultIcon}).addTo(map);
         var badge = r.severity.includes('High') ? 'bg-danger' : (r.severity.includes('Medium') ? 'bg-warning text-dark' : 'bg-info text-dark');
-        marker.bindPopup(`<div style="min-width: 180px;"><h6 class="fw-bold border-bottom pb-1 mb-2">${r.title}</h6><span class="badge ${badge} mb-2">${r.severity}</span><div class="d-grid"><a href="/track/?code=FIX-${r.id}" class="btn btn-outline-primary btn-sm py-0" style="font-size:0.75rem;">Lifecycle Tracking</a></div></div>`);
+        
+        // Added the Ticket ID visually to the popup bubble
+        marker.bindPopup(`<div style="min-width: 180px;"><h6 class="fw-bold text-muted mb-1" style="font-size: 0.8rem;">Ticket #${r.id}</h6><h6 class="fw-bold border-bottom pb-1 mb-2">${r.title}</h6><span class="badge ${badge} mb-2">${r.severity}</span><div class="d-grid"><a href="/track/?code=FIX-${r.id}" class="btn btn-outline-primary btn-sm py-0" style="font-size:0.75rem;">Lifecycle Tracking</a></div></div>`);
+        
+        // 2. Save the marker to our dictionary using the ticket ID
+        allMarkers[r.id] = marker;
     });
+
+    // 3. The function to zoom into the specific ticket
+    function trackTicket() {
+        const searchInput = document.getElementById('ticketSearchInput').value.trim();
+        const feedbackMsg = document.getElementById('searchFeedback');
+
+        // Hide feedback message initially
+        feedbackMsg.style.display = 'none';
+
+        if (!searchInput) return;
+
+        // Check if the marker exists in our dictionary
+        const targetMarker = allMarkers[searchInput];
+
+        if (targetMarker) {
+            // Zoom into the marker's coordinates
+            map.flyTo(targetMarker.getLatLng(), 17, {
+                animate: true,
+                duration: 1.5
+            });
+
+            // Open the popup bubble automatically
+            targetMarker.openPopup();
+
+            // Clear the search box
+            document.getElementById('ticketSearchInput').value = '';
+        } else {
+            // Show error if ticket doesn't exist
+            feedbackMsg.style.display = 'block';
+        }
+    }
 
     const themeToggleBtn = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
@@ -99,6 +151,36 @@
         if (t === 'dark') { themeIcon.classList.replace('bi-moon-stars-fill', 'bi-sun-fill'); themeIcon.classList.add('text-warning'); }
         else { themeIcon.classList.replace('bi-sun-fill', 'bi-moon-stars-fill'); themeIcon.classList.remove('text-warning'); }
     }
+    // Function to zoom map to specific ticket
+function trackTicket() {
+    const searchInput = document.getElementById('ticketSearchInput').value.trim();
+    const feedbackMsg = document.getElementById('searchFeedback');
+    
+    // Hide feedback message initially
+    feedbackMsg.style.display = 'none';
+
+    if (!searchInput) return;
+
+    // Check if the marker exists in our dictionary
+    const targetMarker = allMarkers[searchInput];
+
+    if (targetMarker) {
+        // Zoom into the marker's coordinates (zoom level 16 is usually good for streets)
+        map.flyTo(targetMarker.getLatLng(), 16, {
+            animate: true,
+            duration: 1.5 // Adds a smooth panning animation
+        });
+        
+        // Open the popup bubble automatically
+        targetMarker.openPopup();
+        
+        // Clear the search box
+        document.getElementById('ticketSearchInput').value = '';
+    } else {
+        // Show error if ticket doesn't exist
+        feedbackMsg.style.display = 'block';
+    }
+}
 </script>
 </body>
 </html>
