@@ -28,6 +28,10 @@ SECRET_KEY = 'django-insecure-1t1-t7y0wfw3xi#laj5()0n0vnj=9r9*pam9!x4x=nnr(yh@@f
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    'https://flowfix-app-epeaf4hugxc3badm.southafricanorth-01.azurewebsites.net',
+    'https://*.azurewebsites.net',
+]
 
 
 # Application definition
